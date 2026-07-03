@@ -144,7 +144,7 @@ gradify/
         sessions.py
         marking.py
       services/
-        cloudinary_service.py
+        gcs_service.py
         pdf_service.py
         ai_marking_service.py
         email_service.py
