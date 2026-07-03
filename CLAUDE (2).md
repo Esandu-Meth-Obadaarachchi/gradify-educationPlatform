@@ -8,7 +8,7 @@ Two user sides:
 - Admin (you): manage question bank, build papers, send to students, mark submissions
 - Student: access assigned papers, take the exam with a timer, upload answer script
 
-Stack: React (Vite) + Tailwind CSS (frontend) | FastAPI (backend) | PostgreSQL (database) | Cloudinary (image/file storage)
+Stack: React (Vite) + Tailwind CSS (frontend) | FastAPI (backend) | PostgreSQL (database) | Google Cloud Storage (image/file storage)
 
 Hosting, Docker and CI/CD are deferred to after Phase 3 is complete and working locally.
 
@@ -22,7 +22,7 @@ Hosting, Docker and CI/CD are deferred to after Phase 3 is complete and working 
 | Backend | FastAPI + Python | Primary backend, well known |
 | Database | PostgreSQL | Relational data fits perfectly (subjects, topics, questions, papers, students) |
 | ORM | SQLAlchemy + Alembic | Clean migrations, standard with FastAPI |
-| File Storage | Cloudinary | Free tier generous, handles image transforms, simple SDK |
+| File Storage | Google Cloud Storage | Public-read bucket via a service account; stays in the GCP ecosystem alongside Gemini |
 | Auth | JWT tokens (admin) + UUID-based paper links (student, no login needed) |
 | PDF Export | WeasyPrint (Python, server-side) | Renders HTML/CSS to PDF reliably |
 | AI Marking | Gemini 2.5 Flash API (via google-genai SDK) | Vision capable, free tier, already used in other projects |
@@ -72,7 +72,7 @@ exam_sessions   (id, paper_id, student_name, student_email, access_token UUID, s
 - React + Vite + Tailwind setup
 - JWT admin auth (login page, protected routes)
 - Subject + Topic CRUD (admin panel)
-- Question upload (image to Cloudinary, save metadata to DB)
+- Question upload (image to Google Cloud Storage, save metadata to DB)
 - Question browser (filter by subject, topic, difficulty)
 - Run and confirm all DB migrations locally
 
@@ -213,11 +213,14 @@ gradify/
 
 ### Backend (.env)
 ```
-DATABASE_URL=postgresql://localhost:5432/gradify
+DATABASE_URL=postgresql+asyncpg://localhost:5432/gradify
 SECRET_KEY=your_jwt_secret_here
-CLOUDINARY_CLOUD_NAME=
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
+JWT_ALGORITHM=HS256
+JWT_EXPIRE_MINUTES=480
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=change_me
+GCS_BUCKET=
+GCS_KEY_PATH=./gcs-key.json
 GEMINI_API_KEY=
 RESEND_API_KEY=
 FRONTEND_URL=http://localhost:5173
@@ -306,7 +309,7 @@ Student exam page: clean white, completely minimal, zero distractions.
 
 1. Build strictly phase by phase. Do not touch Phase 2 code until Phase 1 is confirmed working.
 2. Always run Alembic migrations when adding new models. Never alter tables manually.
-3. All file uploads go through the FastAPI backend to Cloudinary. Never upload directly from the frontend.
+3. All file uploads go through the FastAPI backend to Google Cloud Storage. Never upload directly from the frontend.
 4. Use Pydantic v2 schemas for all request/response models.
 5. Use TanStack Query for all API state on the frontend.
 6. Use Zustand for auth state only.
@@ -320,6 +323,9 @@ Student exam page: clean white, completely minimal, zero distractions.
 
 ## Current Status
 
-Phase 1 — NOT STARTED
+Phases 1 & 2 — COMPLETE (June 2026). File storage was swapped from Cloudinary to Google Cloud Storage during Phase 1.
 
-Next action: Scaffold the FastAPI backend. Create the folder structure, set up PostgreSQL connection, write all models, run first Alembic migration, confirm tables exist. Then scaffold the React frontend.
+Phase 1 (Foundation): admin JWT auth, Subjects/Topics CRUD, question image upload to GCS, question browser, full 6-table schema migrated.
+Phase 2 (Paper Builder): paper CRUD, add/drag-reorder/edit paper questions (per-question number + marks), cover-page editor, live preview, draft/publish, PDF export via WeasyPrint (A4, cover + question pages).
+
+Next action: Phase 3 — Exam Delivery (UUID exam links, student timer + grace period, answer-script upload to GCS, admin sessions dashboard).

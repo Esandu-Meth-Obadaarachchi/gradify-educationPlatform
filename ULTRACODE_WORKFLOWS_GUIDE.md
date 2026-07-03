@@ -85,7 +85,7 @@ Agent 1: Write app/routers/auth.py — POST /auth/login endpoint, returns JWT to
 
 Agent 2: Write app/routers/subjects.py and app/routers/topics.py — full CRUD for both. All routes JWT-protected except GET.
 
-Agent 3: Write app/services/cloudinary_service.py — upload_image function that takes a file and returns the Cloudinary URL. Write app/routers/questions.py — POST to upload a question image, GET to list/filter questions by subject/topic/difficulty.
+Agent 3: Write app/services/gcs_service.py — upload_image function that takes a file and returns the Google Cloud Storage URL. Write app/routers/questions.py — POST to upload a question image, GET to list/filter questions by subject/topic/difficulty.
 
 After agents complete, add all routers to main.py includes.
 ```
@@ -118,7 +118,7 @@ Phase 1 verification. Do the following one at a time and confirm each:
 1. Start the FastAPI backend locally. Hit GET /docs and confirm Swagger loads with all routes.
 2. Test POST /auth/login with admin credentials. Confirm JWT is returned.
 3. Test POST /subjects and GET /subjects. Confirm data persists in PostgreSQL.
-4. Test question image upload. Confirm image URL is saved to DB and image is accessible on Cloudinary.
+4. Test question image upload. Confirm image URL is saved to DB and image is accessible on Google Cloud Storage.
 5. Start the React frontend. Confirm login page renders, login works, and subjects/topics pages load data.
 
 Stop and flag any failures before proceeding to Phase 2.
@@ -189,7 +189,7 @@ Build Phase 3 backend in parallel:
 
 Agent 1: Write app/routers/sessions.py — POST to create an exam session (takes paper_id, student_name, student_email, generates UUID access_token, sets status to pending). GET /:token for the student-facing route — returns paper data if token is valid, respects status (locks content if submitted/grace_period/submitted). PATCH /:token/start — sets started_at and status to in_progress. PATCH /:token/grace — sets status to grace_period when timer hits zero.
 
-Agent 2: Write the submission endpoint — POST /:token/submit — accepts multifile upload (images or PDF), uploads to Cloudinary, saves submission_url to session, sets status to submitted.
+Agent 2: Write the submission endpoint — POST /:token/submit — accepts multifile upload (images or PDF), uploads to Google Cloud Storage, saves submission_url to session, sets status to submitted.
 
 Agent 3: Write the admin sessions list endpoint — GET /sessions — returns all sessions with status, student info, paper title, timestamps, submission URL. JWT-protected.
 ```
@@ -215,7 +215,7 @@ Wire all three together. After submit, redirect to src/pages/student/SubmittedPa
 Normal mode (this is simpler, no need for Ultracode):
 
 ```
-Build src/pages/admin/Sessions.tsx — table of all exam sessions fetched from GET /sessions. Columns: student name, student email, paper title, status badge, created date, started time, submitted time, actions. Actions: copy exam link, view submission (opens Cloudinary URL), delete session. Status badges colour-coded: pending=grey, in_progress=blue, submitted=yellow, marked=green.
+Build src/pages/admin/Sessions.tsx — table of all exam sessions fetched from GET /sessions. Columns: student name, student email, paper title, status badge, created date, started time, submitted time, actions. Actions: copy exam link, view submission (opens the storage URL), delete session. Status badges colour-coded: pending=grey, in_progress=blue, submitted=yellow, marked=green.
 ```
 
 ### Step 4: Confirm Phase 3
