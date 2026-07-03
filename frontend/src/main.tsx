@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+import { StrictMode, Suspense, lazy } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -12,6 +12,9 @@ import Subjects from './pages/admin/Subjects'
 import Topics from './pages/admin/Topics'
 import Questions from './pages/admin/Questions'
 import Papers from './pages/admin/Papers'
+
+// pdf.js is heavy — only load the capture page (and its worker) on demand.
+const PdfCapture = lazy(() => import('./pages/admin/PdfCapture'))
 import PaperBuilder from './pages/admin/PaperBuilder'
 
 const queryClient = new QueryClient({
@@ -32,6 +35,14 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/subjects" element={<Subjects />} />
               <Route path="/topics" element={<Topics />} />
               <Route path="/questions" element={<Questions />} />
+              <Route
+                path="/questions/capture"
+                element={
+                  <Suspense fallback={<div className="p-8 text-slate-400">Loading…</div>}>
+                    <PdfCapture />
+                  </Suspense>
+                }
+              />
               <Route path="/papers" element={<Papers />} />
               <Route path="/papers/new" element={<PaperBuilder />} />
               <Route path="/papers/:id" element={<PaperBuilder />} />
