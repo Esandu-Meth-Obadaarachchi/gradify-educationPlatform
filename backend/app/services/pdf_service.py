@@ -107,12 +107,19 @@ def _questions_html(paper: PaperDetailResponse) -> str:
             if uri
             else '<div class="missing">[question image unavailable]</div>'
         )
+        if pq.part_marks:
+            breakdown = ", ".join(
+                f"({p.label}) {p.marks}" for p in pq.part_marks
+            )
+            marks_label = f"[{pq.marks} marks — {breakdown}]"
+        else:
+            marks_label = f"[{pq.marks} marks]"
         blocks.append(
             f"""
         <section class="question">
           <div class="qhead">
             <span class="qnum">Question {pq.question_number}</span>
-            <span class="qmarks">[{pq.marks} marks]</span>
+            <span class="qmarks">{marks_label}</span>
           </div>
           {body}
         </section>

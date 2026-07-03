@@ -52,7 +52,13 @@ class PaperQuestion(Base):
         ForeignKey("questions.id", ondelete="CASCADE"), nullable=False, index=True
     )
     question_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    # Adjusted total for this question in this paper (tuned to hit the paper
+    # total). When `part_marks` is set, this equals the sum of its marks.
     marks: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    # Adjusted per-part breakdown, seeded from the question's original parts when
+    # added, then editable, e.g. [{"label": "a", "marks": 3}, ...]. Null for a
+    # question with no sub-parts.
+    part_marks: Mapped[list | None] = mapped_column(JSONB, nullable=True)
     order_index: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
     paper: Mapped["Paper"] = relationship(back_populates="questions")

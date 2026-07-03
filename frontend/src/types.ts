@@ -15,11 +15,18 @@ export type Difficulty = 'easy' | 'medium' | 'hard'
 
 export const DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard']
 
+export interface QuestionPart {
+  label: string
+  marks: number
+}
+
 export interface Question {
   id: number
   topic_id: number
   image_url: string
   difficulty: Difficulty
+  original_marks: number | null
+  parts: QuestionPart[] | null
   created_at: string
 }
 
@@ -53,9 +60,12 @@ export interface PaperQuestion {
   question_id: number
   question_number: number
   marks: number
+  part_marks: QuestionPart[] | null
   order_index: number
   image_url: string | null
   topic_id: number | null
+  original_marks: number | null
+  original_parts: QuestionPart[] | null
 }
 
 export interface PaperDetail extends Paper {

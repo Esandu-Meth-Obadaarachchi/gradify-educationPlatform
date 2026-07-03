@@ -73,7 +73,13 @@ export default function PaperPreview({
               <div key={q.id}>
                 <div className="mb-2 flex items-baseline justify-between border-b border-slate-200 pb-1">
                   <span className="font-semibold">Question {q.question_number}</span>
-                  <span className="text-sm text-slate-500">[{q.marks} marks]</span>
+                  <span className="text-sm text-slate-500">
+                    [{q.marks} marks
+                    {q.part_marks?.length
+                      ? ` — ${q.part_marks.map((p) => `(${p.label}) ${p.marks}`).join(', ')}`
+                      : ''}
+                    ]
+                  </span>
                 </div>
                 {q.image_url ? (
                   <img

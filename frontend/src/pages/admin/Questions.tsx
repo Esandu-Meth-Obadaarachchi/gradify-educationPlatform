@@ -46,18 +46,20 @@ export default function Questions() {
   const [open, setOpen] = useState(false)
   const [uTopic, setUTopic] = useState<number | ''>('')
   const [uDifficulty, setUDifficulty] = useState<Difficulty>('medium')
+  const [uMarks, setUMarks] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   function resetUpload() {
     setUTopic('')
     setUDifficulty('medium')
+    setUMarks('')
     setFile(null)
     setError(null)
   }
 
   const uploadMutation = useMutation({
-    mutationFn: () => questionsApi.create(file as File, Number(uTopic), uDifficulty),
+    mutationFn: () => questionsApi.create(file as File, Number(uTopic), uDifficulty, uMarks),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['questions'] })
       setOpen(false)
@@ -192,6 +194,18 @@ export default function Questions() {
                 </option>
               ))}
             </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-sm text-slate-400">Original marks</label>
+            <input
+              value={uMarks}
+              onChange={(e) => setUMarks(e.target.value)}
+              placeholder="e.g. 3,1,2 for parts a,b,c — or 5 for a single mark"
+              className={inputClass}
+            />
+            <p className="mt-1 text-xs text-slate-500">
+              Enter the paper's marks. Commas make sub-parts (3,1,2 → a=3 b=1 c=2). Leave blank if unknown.
+            </p>
           </div>
           {error && (
             <div className="rounded-lg bg-rose-500/10 px-3 py-2 text-sm text-rose-300">{error}</div>

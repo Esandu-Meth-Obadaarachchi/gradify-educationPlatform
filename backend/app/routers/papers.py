@@ -31,9 +31,12 @@ def _pq_response(pq: PaperQuestion) -> PaperQuestionResponse:
         question_id=pq.question_id,
         question_number=pq.question_number,
         marks=pq.marks,
+        part_marks=pq.part_marks,
         order_index=pq.order_index,
         image_url=pq.question.image_url if pq.question else None,
         topic_id=pq.question.topic_id if pq.question else None,
+        original_marks=pq.question.original_marks if pq.question else None,
+        original_parts=pq.question.parts if pq.question else None,
     )
 
 
@@ -182,7 +185,8 @@ async def add_question(
     admin: str = Depends(get_current_admin),
 ):
     paper = await _load_paper(db, paper_id)
-    if not await db.get(Question, payload.question_id):
+    question = await db.get(Question, payload.question_id)
+    if not question:
         raise HTTPException(status_code=404, detail="Question not found")
     existing = await _paper_questions(db, paper_id)
     next_order = max((pq.order_index for pq in existing), default=-1) + 1
@@ -191,11 +195,26 @@ async def add_question(
         if payload.question_number is not None
         else len(existing) + 1
     )
+    # Seed the adjusted marks from the question's original breakdown so the admin
+    # starts at the paper's real values and only nudges them to hit the total.
+    if payload.part_marks is not None:
+        part_marks = [p.model_dump() for p in payload.part_marks]
+    elif question.parts:
+        part_marks = [dict(p) for p in question.parts]
+    else:
+        part_marks = None
+    if part_marks is not None:
+        marks = sum(p["marks"] for p in part_marks)
+    elif payload.marks:
+        marks = payload.marks
+    else:
+        marks = question.original_marks or 0
     db.add(
         PaperQuestion(
             paper_id=paper_id,
             question_id=payload.question_id,
-            marks=payload.marks,
+            marks=marks,
+            part_marks=part_marks,
             question_number=number,
             order_index=next_order,
         )
@@ -234,7 +253,11 @@ async def update_paper_question(
     pq = await db.get(PaperQuestion, pq_id)
     if not pq or pq.paper_id != paper_id:
         raise HTTPException(status_code=404, detail="Paper question not found")
-    for key, value in payload.model_dump(exclude_unset=True).items():
+    data = payload.model_dump(exclude_unset=True)
+    if "part_marks" in data and data["part_marks"] is not None:
+        # Keep the question total as the sum of its parts.
+        data["marks"] = sum(p["marks"] for p in data["part_marks"])
+    for key, value in data.items():
         setattr(pq, key, value)
     await db.commit()
     paper = await _load_paper(db, paper_id)
