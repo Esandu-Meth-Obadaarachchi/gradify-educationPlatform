@@ -37,6 +37,16 @@ export default function QuestionCard({ question, topic, onDelete, deleting }: Qu
           >
             {question.difficulty}
           </span>
+          {question.original_marks != null && (
+            <span
+              className="rounded-full bg-slate-700 px-2.5 py-0.5 text-xs text-slate-300"
+              title="Original marks from the source paper"
+            >
+              {question.parts?.length
+                ? `${question.original_marks} (${question.parts.map((p) => p.marks).join('·')})`
+                : `${question.original_marks} marks`}
+            </span>
+          )}
         </div>
         <button
           onClick={() => onDelete(question.id)}

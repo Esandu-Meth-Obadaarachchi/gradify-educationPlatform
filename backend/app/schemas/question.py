@@ -16,9 +16,16 @@ class QuestionCreate(QuestionBase):
     image_url: str
 
 
+class QuestionPart(BaseModel):
+    label: str
+    marks: int = Field(ge=0)
+
+
 class QuestionUpdate(BaseModel):
     topic_id: int | None = None
     difficulty: str | None = None
+    original_marks: int | None = Field(None, ge=0)
+    parts: list[QuestionPart] | None = None
 
 
 class QuestionResponse(BaseModel):
@@ -28,4 +35,6 @@ class QuestionResponse(BaseModel):
     topic_id: int
     image_url: str
     difficulty: str
+    original_marks: int | None = None
+    parts: list[QuestionPart] | None = None
     created_at: datetime

@@ -209,8 +209,13 @@ function EditPaper({ paperId }: { paperId: number }) {
     onSuccess: invalidate,
   })
   const updateQMut = useMutation({
-    mutationFn: ({ pqId, body }: { pqId: number; body: { question_number?: number; marks?: number } }) =>
-      papersApi.updateQuestion(paperId, pqId, body),
+    mutationFn: ({
+      pqId,
+      body,
+    }: {
+      pqId: number
+      body: { question_number?: number; marks?: number; part_marks?: PaperQuestion['part_marks'] }
+    }) => papersApi.updateQuestion(paperId, pqId, body),
     onSuccess: invalidate,
   })
   const removeQMut = useMutation({
@@ -467,6 +472,16 @@ function EditPaper({ paperId }: { paperId: number }) {
 
 // --- Sub-components ---
 
+function originalSummary(pq: PaperQuestion): string | null {
+  if (pq.original_parts?.length) {
+    const breakdown = pq.original_parts.map((p) => p.marks).join('·')
+    const total = pq.original_parts.reduce((s, p) => s + p.marks, 0)
+    return `orig ${total} (${breakdown})`
+  }
+  if (pq.original_marks != null) return `orig ${pq.original_marks}`
+  return null
+}
+
 function QuestionRow({
   pq,
   onChange,
@@ -476,12 +491,25 @@ function QuestionRow({
   onDrop,
 }: {
   pq: PaperQuestion
-  onChange: (body: { question_number?: number; marks?: number }) => void
+  onChange: (body: {
+    question_number?: number
+    marks?: number
+    part_marks?: PaperQuestion['part_marks']
+  }) => void
   onRemove: () => void
   onDragStart: () => void
   onDragOver: (e: DragEvent<HTMLDivElement>) => void
   onDrop: () => void
 }) {
+  const orig = originalSummary(pq)
+
+  // Edit one sub-part: rebuild the whole part_marks array with that part changed.
+  function editPart(index: number, value: number) {
+    const parts = pq.part_marks ?? []
+    const next = parts.map((p, i) => (i === index ? { ...p, marks: value } : p))
+    onChange({ part_marks: next })
+  }
+
   return (
     <div
       draggable
@@ -515,20 +543,49 @@ function QuestionRow({
         <div className="h-12 w-20 rounded border border-slate-700 bg-slate-800" />
       )}
       <div className="flex-1" />
-      <label className="flex items-center gap-1 text-xs text-slate-400">
-        marks
-        <input
-          type="number"
-          min={0}
-          key={`m-${pq.id}-${pq.marks}`}
-          defaultValue={pq.marks}
-          onBlur={(e) => {
-            const v = Number(e.target.value)
-            if (v !== pq.marks) onChange({ marks: v })
-          }}
-          className="w-16 rounded bg-slate-800 px-2 py-1 text-sm text-slate-100"
-        />
-      </label>
+      {orig && (
+        <span className="whitespace-nowrap text-xs text-slate-500" title="Original marks from the source paper">
+          {orig}
+        </span>
+      )}
+      {pq.part_marks?.length ? (
+        <div className="flex items-center gap-2">
+          {pq.part_marks.map((p, i) => (
+            <label key={p.label} className="flex items-center gap-1 text-xs text-slate-400">
+              {p.label}
+              <input
+                type="number"
+                min={0}
+                key={`p-${pq.id}-${p.label}-${p.marks}`}
+                defaultValue={p.marks}
+                onBlur={(e) => {
+                  const v = Number(e.target.value)
+                  if (v !== p.marks) editPart(i, v)
+                }}
+                className="w-12 rounded bg-slate-800 px-2 py-1 text-sm text-slate-100"
+              />
+            </label>
+          ))}
+          <span className="whitespace-nowrap text-xs font-medium text-slate-300" title="Question total">
+            = {pq.marks}
+          </span>
+        </div>
+      ) : (
+        <label className="flex items-center gap-1 text-xs text-slate-400">
+          marks
+          <input
+            type="number"
+            min={0}
+            key={`m-${pq.id}-${pq.marks}`}
+            defaultValue={pq.marks}
+            onBlur={(e) => {
+              const v = Number(e.target.value)
+              if (v !== pq.marks) onChange({ marks: v })
+            }}
+            className="w-16 rounded bg-slate-800 px-2 py-1 text-sm text-slate-100"
+          />
+        </label>
+      )}
       <button
         onClick={onRemove}
         className="px-2 text-slate-500 transition hover:text-rose-400"

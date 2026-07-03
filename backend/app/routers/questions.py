@@ -25,6 +25,37 @@ router = APIRouter(prefix="/questions", tags=["questions"])
 
 _IMAGE_TYPES = {"image/png", "image/jpeg", "image/jpg", "image/webp", "image/gif"}
 
+# Sub-part labels a, b, c, ... for a comma marks string like "3,1,2".
+_PART_LABELS = "abcdefghijklmnopqrstuvwxyz"
+
+
+def _parse_marks(raw: str | None) -> tuple[int | None, list[dict] | None]:
+    """Turn a comma marks string into (original_marks, parts).
+
+    "3,1,2" -> (6, [{"label": "a", "marks": 3}, ...]).
+    "5"     -> (5, None)  — single number, no sub-parts.
+    ""/None -> (None, None).
+    """
+    if raw is None or not raw.strip():
+        return None, None
+    try:
+        values = [int(v.strip()) for v in raw.split(",") if v.strip()]
+    except ValueError:
+        raise HTTPException(
+            status_code=422,
+            detail="Marks must be numbers separated by commas, e.g. 3,1,2",
+        )
+    if any(v < 0 for v in values):
+        raise HTTPException(status_code=422, detail="Marks cannot be negative")
+    if not values:
+        return None, None
+    if len(values) == 1:
+        return values[0], None
+    if len(values) > len(_PART_LABELS):
+        raise HTTPException(status_code=422, detail="Too many sub-parts")
+    parts = [{"label": _PART_LABELS[i], "marks": v} for i, v in enumerate(values)]
+    return sum(values), parts
+
 
 @router.get("", response_model=list[QuestionResponse])
 async def list_questions(
@@ -49,6 +80,7 @@ async def list_questions(
 async def create_question(
     topic_id: int = Form(...),
     difficulty: str = Form("medium"),
+    marks: str | None = Form(None),
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
     admin: str = Depends(get_current_admin),
@@ -66,13 +98,21 @@ async def create_question(
             detail=f"Unsupported file type '{file.content_type}'. Upload a PNG/JPEG/WebP image.",
         )
 
+    original_marks, parts = _parse_marks(marks)
+
     contents = await file.read()
     try:
         image_url = upload_image(contents, file.content_type)
     except StorageNotConfigured as exc:
         raise HTTPException(status_code=503, detail=str(exc))
 
-    question = Question(topic_id=topic_id, difficulty=difficulty, image_url=image_url)
+    question = Question(
+        topic_id=topic_id,
+        difficulty=difficulty,
+        image_url=image_url,
+        original_marks=original_marks,
+        parts=parts,
+    )
     db.add(question)
     await db.commit()
     await db.refresh(question)
@@ -100,6 +140,13 @@ async def update_question(
         if not await db.get(Topic, payload.topic_id):
             raise HTTPException(status_code=404, detail="Topic not found")
         question.topic_id = payload.topic_id
+    fields = payload.model_dump(exclude_unset=True)
+    if "parts" in fields:
+        question.parts = (
+            [p.model_dump() for p in payload.parts] if payload.parts else None
+        )
+    if "original_marks" in fields:
+        question.original_marks = payload.original_marks
     await db.commit()
     await db.refresh(question)
     return question

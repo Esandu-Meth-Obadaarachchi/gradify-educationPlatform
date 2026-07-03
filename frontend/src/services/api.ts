@@ -9,6 +9,7 @@ import type {
   PaperSummary,
   PaperUpdatePayload,
   Question,
+  QuestionPart,
   Subject,
   Topic,
 } from '../types'
@@ -77,15 +78,23 @@ export interface QuestionFilters {
 export const questionsApi = {
   list: (filters: QuestionFilters = {}) =>
     api.get<Question[]>('/questions', { params: filters }).then((r) => r.data),
-  create: (file: File, topic_id: number, difficulty: Difficulty) => {
+  create: (file: File, topic_id: number, difficulty: Difficulty, marks?: string) => {
     const form = new FormData()
     form.append('file', file)
     form.append('topic_id', String(topic_id))
     form.append('difficulty', difficulty)
+    if (marks && marks.trim()) form.append('marks', marks.trim())
     return api.post<Question>('/questions', form).then((r) => r.data)
   },
-  update: (id: number, data: Partial<{ topic_id: number; difficulty: Difficulty }>) =>
-    api.put<Question>(`/questions/${id}`, data).then((r) => r.data),
+  update: (
+    id: number,
+    data: Partial<{
+      topic_id: number
+      difficulty: Difficulty
+      original_marks: number | null
+      parts: QuestionPart[] | null
+    }>,
+  ) => api.put<Question>(`/questions/${id}`, data).then((r) => r.data),
   remove: (id: number) => api.delete(`/questions/${id}`).then((r) => r.data),
 }
 
@@ -101,12 +110,17 @@ export const papersApi = {
   remove: (id: number) => api.delete(`/papers/${id}`).then((r) => r.data),
   addQuestion: (
     id: number,
-    body: { question_id: number; marks?: number; question_number?: number },
+    body: {
+      question_id: number
+      marks?: number
+      part_marks?: QuestionPart[] | null
+      question_number?: number
+    },
   ) => api.post<PaperDetail>(`/papers/${id}/questions`, body).then((r) => r.data),
   updateQuestion: (
     id: number,
     pqId: number,
-    body: { question_number?: number; marks?: number },
+    body: { question_number?: number; marks?: number; part_marks?: QuestionPart[] | null },
   ) => api.put<PaperDetail>(`/papers/${id}/questions/${pqId}`, body).then((r) => r.data),
   reorder: (id: number, orderedIds: number[]) =>
     api

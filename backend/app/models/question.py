@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, ForeignKey, String, func
+from sqlalchemy import DateTime, ForeignKey, Integer, String, func
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -22,6 +23,12 @@ class Question(Base):
     # paper_questions so the same image can be reused across papers.
     image_url: Mapped[str] = mapped_column(String(500), nullable=False)
     difficulty: Mapped[str] = mapped_column(String(20), nullable=False, default="medium")
+    # Original marks as printed on the source past paper — reference only, never
+    # changes. `original_marks` is the printed total; `parts` is the sub-part
+    # breakdown, e.g. [{"label": "a", "marks": 3}, ...]. Both null for a legacy
+    # question with no captured marks.
+    original_marks: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    parts: Mapped[list | None] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
