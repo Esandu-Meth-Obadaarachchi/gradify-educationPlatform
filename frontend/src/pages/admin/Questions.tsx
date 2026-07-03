@@ -1,4 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { questionsApi, subjectsApi, topicsApi, type QuestionFilters } from '../../services/api'
 import { DIFFICULTIES, type Difficulty } from '../../types'
@@ -84,16 +85,26 @@ export default function Questions() {
     <div>
       <div className="mb-6 flex items-center justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Question Bank</h1>
-        <button
-          onClick={() => {
-            resetUpload()
-            setOpen(true)
-          }}
-          disabled={noTopics}
-          className="rounded-lg bg-indigo-600 px-4 py-2 font-medium text-white transition hover:bg-indigo-500 disabled:opacity-50"
-        >
-          + Upload question
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/questions/capture"
+            className={`rounded-lg bg-slate-700 px-4 py-2 font-medium text-white transition hover:bg-slate-600 ${
+              noTopics ? 'pointer-events-none opacity-50' : ''
+            }`}
+          >
+            Capture from PDF
+          </Link>
+          <button
+            onClick={() => {
+              resetUpload()
+              setOpen(true)
+            }}
+            disabled={noTopics}
+            className="rounded-lg bg-indigo-600 px-4 py-2 font-medium text-white transition hover:bg-indigo-500 disabled:opacity-50"
+          >
+            + Upload question
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
