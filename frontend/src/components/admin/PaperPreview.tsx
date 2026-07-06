@@ -29,10 +29,10 @@ export default function PaperPreview({
 }: PaperPreviewProps) {
   return (
     <div className="overflow-hidden rounded-lg bg-white text-slate-900 shadow-inner">
-      {/* Cover */}
-      <div className="relative">
+      {/* Cover — roughly A4 proportion so it reads like the exported front page */}
+      <div className="relative flex min-h-[840px] flex-col">
         <div className="h-2 w-full bg-gradient-to-r from-indigo-500 to-violet-500" />
-        <div className="mx-auto max-w-[640px] px-8 pb-8 pt-8 text-center">
+        <div className="mx-auto flex max-w-[640px] flex-1 flex-col justify-center px-8 py-10 text-center">
           <div className="mb-6 flex justify-center">
             <GradifyLogo size={44} />
           </div>

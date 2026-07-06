@@ -252,6 +252,9 @@ function EditPaper({ paperId }: { paperId: number }) {
   async function handleExport() {
     setExporting(true)
     try {
+      // Persist the current details first so the PDF matches the live preview
+      // (institution, date and instructions live in unsaved form state).
+      await saveDetails.mutateAsync()
       const blob = await papersApi.exportPdf(paperId)
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
