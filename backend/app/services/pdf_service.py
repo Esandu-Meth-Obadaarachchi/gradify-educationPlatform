@@ -60,16 +60,35 @@ def _data_uri(image_url: str) -> str | None:
         return None
 
 
+# Brand mark — kept in sync with frontend/src/components/shared/GradifyLogo.tsx.
+_LOGO_SVG = """
+<svg width="46" height="46" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gmark" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" rx="12" fill="url(#gmark)"/>
+  <path d="M24 13 L40 20 L24 27 L8 20 Z" fill="#ffffff"/>
+  <path d="M15 22.5 V29.5 C15 32.6 33 32.6 33 29.5 V22.5" stroke="#ffffff"
+        stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <path d="M40 20 V30" stroke="#c7d2fe" stroke-width="1.6" stroke-linecap="round"/>
+  <circle cx="40" cy="31.5" r="2" fill="#c7d2fe"/>
+</svg>
+"""
+
+
 def _cover_html(paper: PaperDetailResponse) -> str:
     cover = paper.cover_page_data or {}
     institution = escape(str(cover.get("institution") or ""))
     exam_date = escape(str(cover.get("exam_date") or ""))
     instructions = escape(str(cover.get("instructions") or "")).replace("\n", "<br/>")
-    subject = escape(paper.subject_name or "")
+    subject = escape(paper.subject_name or "—")
     title = escape(paper.title)
 
     date_row = (
-        f"<div><span>Date</span><strong>{exam_date}</strong></div>" if exam_date else ""
+        f'<div class="date">Date <strong>{exam_date}</strong></div>' if exam_date else ""
     )
     institution_row = (
         f'<div class="institution">{institution}</div>' if institution else ""
@@ -81,14 +100,19 @@ def _cover_html(paper: PaperDetailResponse) -> str:
     )
     return f"""
     <section class="cover">
+      <div class="brand">
+        {_LOGO_SVG}
+        <span class="wordmark">Gradify<span class="dot">.</span></span>
+      </div>
       {institution_row}
       <h1 class="paper-title">{title}</h1>
+      <div class="accent"></div>
       <div class="meta">
-        <div><span>Subject</span><strong>{subject}</strong></div>
-        <div><span>Duration</span><strong>{paper.duration_minutes} minutes</strong></div>
-        <div><span>Total marks</span><strong>{paper.total_marks}</strong></div>
-        {date_row}
+        <div class="card"><span>Subject</span><strong>{subject}</strong></div>
+        <div class="card"><span>Duration</span><strong>{paper.duration_minutes} min</strong></div>
+        <div class="card"><span>Total marks</span><strong>{paper.total_marks}</strong></div>
       </div>
+      {date_row}
       <div class="candidate">
         <div class="field"><span>Candidate name</span><div class="line"></div></div>
         <div class="field"><span>Index / ID number</span><div class="line"></div></div>
@@ -107,18 +131,17 @@ def _questions_html(paper: PaperDetailResponse) -> str:
             if uri
             else '<div class="missing">[question image unavailable]</div>'
         )
+        unit = "mark" if pq.marks == 1 else "marks"
         if pq.part_marks:
-            breakdown = ", ".join(
-                f"({p.label}) {p.marks}" for p in pq.part_marks
-            )
-            marks_label = f"[{pq.marks} marks — {breakdown}]"
+            breakdown = "  ".join(f"({p.label}) {p.marks}" for p in pq.part_marks)
+            marks_label = f"{pq.marks} {unit} &nbsp;·&nbsp; {breakdown}"
         else:
-            marks_label = f"[{pq.marks} marks]"
+            marks_label = f"{pq.marks} {unit}"
         blocks.append(
             f"""
         <section class="question">
           <div class="qhead">
-            <span class="qnum">Question {pq.question_number}</span>
+            <span class="qnum">Q{pq.question_number}</span>
             <span class="qmarks">{marks_label}</span>
           </div>
           {body}
@@ -143,24 +166,42 @@ def render_paper_pdf(paper: PaperDetailResponse) -> bytes:
     @bottom-right {{ content: "Gradify"; font-size: 8px; color: #c8c8c8; }}
   }}
   * {{ box-sizing: border-box; }}
-  body {{ font-family: Helvetica, Arial, sans-serif; color: #111; margin: 0; }}
-  .cover {{ page-break-after: always; padding-top: 2cm; text-align: center; }}
-  .cover .institution {{ font-size: 14px; letter-spacing: 2px; text-transform: uppercase; color: #555; margin-bottom: 1cm; }}
-  .cover .paper-title {{ font-size: 30px; margin: 0 0 1.2cm; }}
-  .cover .meta {{ display: flex; flex-direction: column; gap: 4px; max-width: 12cm; margin: 0 auto 1.4cm; }}
-  .cover .meta > div {{ display: flex; justify-content: space-between; border-bottom: 1px solid #e3e3e3; padding: 6px 2px; }}
-  .cover .meta span {{ color: #666; }}
-  .candidate {{ max-width: 12cm; margin: 0 auto 1.4cm; text-align: left; }}
-  .candidate .field {{ margin-bottom: 14px; }}
-  .candidate .field span {{ font-size: 12px; color: #666; }}
-  .candidate .line {{ border-bottom: 1px solid #999; height: 22px; }}
-  .instructions {{ max-width: 13cm; margin: 0 auto; text-align: left; border: 1px solid #e3e3e3; border-radius: 6px; padding: 12px 16px; }}
-  .instructions h3 {{ margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #444; }}
-  .instructions p {{ margin: 0; font-size: 13px; line-height: 1.5; }}
+  body {{ font-family: Helvetica, Arial, sans-serif; color: #0f172a; margin: 0; }}
+
+  .cover {{ page-break-after: always; padding-top: 0.6cm; text-align: center; }}
+  .brand {{ display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 0.9cm; }}
+  .brand .wordmark {{ font-size: 24px; font-weight: bold; letter-spacing: -0.5px; color: #0f172a; }}
+  .brand .dot {{ color: #6366f1; }}
+  .cover .institution {{ font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: #64748b; margin-bottom: 10px; }}
+  .cover .paper-title {{ font-size: 30px; margin: 0; color: #0f172a; letter-spacing: -0.5px; }}
+  .cover .accent {{ width: 64px; height: 4px; border-radius: 4px; margin: 12px auto 1.2cm;
+                    background: linear-gradient(90deg, #6366f1, #8b5cf6); }}
+
+  .cover .meta {{ display: flex; justify-content: center; gap: 10px; max-width: 13cm; margin: 0 auto; }}
+  .cover .meta .card {{ flex: 1; border: 1px solid #e2e8f0; background: #f8fafc; border-radius: 8px;
+                        padding: 10px 8px; }}
+  .cover .meta .card span {{ display: block; font-size: 9px; font-weight: bold; letter-spacing: 0.5px;
+                             text-transform: uppercase; color: #6366f1; }}
+  .cover .meta .card strong {{ display: block; margin-top: 3px; font-size: 14px; color: #0f172a; }}
+  .cover .date {{ margin-top: 12px; font-size: 12px; color: #64748b; }}
+  .cover .date strong {{ color: #0f172a; }}
+
+  .candidate {{ display: flex; gap: 24px; max-width: 13cm; margin: 1.3cm auto 0; text-align: left; }}
+  .candidate .field {{ flex: 1; }}
+  .candidate .field span {{ font-size: 11px; color: #64748b; }}
+  .candidate .line {{ border-bottom: 1px solid #94a3b8; height: 24px; }}
+
+  .instructions {{ max-width: 13cm; margin: 1.2cm auto 0; text-align: left; border: 1px solid #e0e7ff;
+                   background: #eef2ff; border-radius: 8px; padding: 12px 16px; }}
+  .instructions h3 {{ margin: 0 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #4f46e5; }}
+  .instructions p {{ margin: 0; font-size: 13px; line-height: 1.55; color: #334155; }}
+
   .question {{ break-inside: avoid; margin-bottom: 26px; }}
-  .qhead {{ display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 4px; }}
-  .qnum {{ font-size: 15px; font-weight: bold; }}
-  .qmarks {{ font-size: 13px; color: #444; }}
+  .qhead {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }}
+  .qnum {{ font-size: 13px; font-weight: bold; color: #fff; background: #6366f1;
+           border-radius: 999px; padding: 4px 12px; }}
+  .qmarks {{ font-size: 11px; color: #475569; background: #f8fafc; border: 1px solid #e2e8f0;
+             border-radius: 999px; padding: 4px 12px; }}
   .question img {{ display: block; max-width: 100%; }}
   .missing {{ color: #b91c1c; font-style: italic; }}
 </style></head>

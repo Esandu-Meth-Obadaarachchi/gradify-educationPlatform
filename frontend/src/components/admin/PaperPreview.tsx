@@ -1,4 +1,5 @@
 import type { CoverPageData, PaperQuestion } from '../../types'
+import GradifyLogo from '../shared/GradifyLogo'
 
 interface PaperPreviewProps {
   title: string
@@ -9,11 +10,11 @@ interface PaperPreviewProps {
   questions: PaperQuestion[]
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function MetaCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between border-b border-slate-200 py-1.5">
-      <span className="text-slate-500">{label}</span>
-      <span className="font-semibold">{value}</span>
+    <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-center">
+      <div className="text-[10px] font-semibold uppercase tracking-wide text-indigo-500">{label}</div>
+      <div className="mt-0.5 text-sm font-semibold text-slate-900">{value}</div>
     </div>
   )
 }
@@ -27,66 +28,83 @@ export default function PaperPreview({
   questions,
 }: PaperPreviewProps) {
   return (
-    <div className="rounded-lg bg-white text-slate-900 shadow-inner">
-      <div className="mx-auto max-w-[640px] p-8">
-        {cover?.institution && (
-          <div className="mb-4 text-center text-xs uppercase tracking-[0.2em] text-slate-500">
-            {cover.institution}
+    <div className="overflow-hidden rounded-lg bg-white text-slate-900 shadow-inner">
+      {/* Cover */}
+      <div className="relative">
+        <div className="h-2 w-full bg-gradient-to-r from-indigo-500 to-violet-500" />
+        <div className="mx-auto max-w-[640px] px-8 pb-8 pt-8 text-center">
+          <div className="mb-6 flex justify-center">
+            <GradifyLogo size={44} />
           </div>
-        )}
-        <h2 className="mb-6 text-center text-2xl font-bold">{title || 'Untitled paper'}</h2>
 
-        <div className="mx-auto mb-6 max-w-sm text-sm">
-          <Row label="Subject" value={subjectName || '—'} />
-          <Row label="Duration" value={`${durationMinutes} minutes`} />
-          <Row label="Total marks" value={String(totalMarks)} />
-          {cover?.exam_date && <Row label="Date" value={cover.exam_date} />}
-        </div>
-
-        <div className="mx-auto mb-6 max-w-sm space-y-4 text-sm">
-          <div>
-            <div className="text-xs text-slate-500">Candidate name</div>
-            <div className="mt-4 border-b border-slate-400" />
-          </div>
-          <div>
-            <div className="text-xs text-slate-500">Index / ID number</div>
-            <div className="mt-4 border-b border-slate-400" />
-          </div>
-        </div>
-
-        {cover?.instructions && (
-          <div className="mb-6 rounded-md border border-slate-200 p-3 text-sm">
-            <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Instructions
+          {cover?.institution && (
+            <div className="mb-3 text-xs font-medium uppercase tracking-[0.25em] text-slate-500">
+              {cover.institution}
             </div>
-            <p className="whitespace-pre-line text-slate-700">{cover.instructions}</p>
+          )}
+
+          <h2 className="text-3xl font-bold tracking-tight text-slate-900">
+            {title || 'Untitled paper'}
+          </h2>
+          <div className="mx-auto mt-3 h-1 w-16 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500" />
+
+          <div className="mx-auto mt-7 grid max-w-md grid-cols-3 gap-3">
+            <MetaCard label="Subject" value={subjectName || '—'} />
+            <MetaCard label="Duration" value={`${durationMinutes} min`} />
+            <MetaCard label="Total marks" value={String(totalMarks)} />
           </div>
-        )}
+          {cover?.exam_date && (
+            <div className="mt-3 text-sm text-slate-500">
+              Date <span className="font-semibold text-slate-700">{cover.exam_date}</span>
+            </div>
+          )}
 
-        <hr className="my-6 border-slate-200" />
+          <div className="mx-auto mt-7 grid max-w-md grid-cols-1 gap-5 text-left sm:grid-cols-2">
+            <div>
+              <div className="text-xs text-slate-500">Candidate name</div>
+              <div className="mt-5 border-b border-slate-300" />
+            </div>
+            <div>
+              <div className="text-xs text-slate-500">Index / ID number</div>
+              <div className="mt-5 border-b border-slate-300" />
+            </div>
+          </div>
 
+          {cover?.instructions && (
+            <div className="mx-auto mt-7 max-w-md rounded-lg border border-indigo-100 bg-indigo-50/60 p-4 text-left">
+              <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-indigo-600">
+                Instructions
+              </div>
+              <p className="whitespace-pre-line text-sm leading-relaxed text-slate-700">
+                {cover.instructions}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Questions */}
+      <div className="mx-auto max-w-[640px] px-8 pb-10">
+        <hr className="mb-6 border-slate-200" />
         {questions.length === 0 ? (
           <p className="text-center text-sm text-slate-400">No questions added yet.</p>
         ) : (
           <div className="space-y-6">
             {questions.map((q) => (
               <div key={q.id}>
-                <div className="mb-2 flex items-baseline justify-between border-b border-slate-200 pb-1">
-                  <span className="font-semibold">Question {q.question_number}</span>
-                  <span className="text-sm text-slate-500">
-                    [{q.marks} marks
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-indigo-500 px-3 py-1 text-sm font-semibold text-white">
+                    Q{q.question_number}
+                  </span>
+                  <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
+                    {q.marks} {q.marks === 1 ? 'mark' : 'marks'}
                     {q.part_marks?.length
-                      ? ` — ${q.part_marks.map((p) => `(${p.label}) ${p.marks}`).join(', ')}`
+                      ? ` · ${q.part_marks.map((p) => `(${p.label}) ${p.marks}`).join('  ')}`
                       : ''}
-                    ]
                   </span>
                 </div>
                 {q.image_url ? (
-                  <img
-                    src={q.image_url}
-                    alt={`Question ${q.question_number}`}
-                    className="w-full"
-                  />
+                  <img src={q.image_url} alt={`Question ${q.question_number}`} className="w-full" />
                 ) : (
                   <div className="text-sm italic text-rose-500">[image unavailable]</div>
                 )}
