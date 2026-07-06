@@ -168,7 +168,8 @@ def render_paper_pdf(paper: PaperDetailResponse) -> bytes:
   * {{ box-sizing: border-box; }}
   body {{ font-family: Helvetica, Arial, sans-serif; color: #0f172a; margin: 0; }}
 
-  .cover {{ page-break-after: always; padding-top: 0.6cm; text-align: center; }}
+  .cover {{ page-break-after: always; text-align: center; min-height: 23cm;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; }}
   .brand {{ display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 0.9cm; }}
   .brand .wordmark {{ font-size: 24px; font-weight: bold; letter-spacing: -0.5px; color: #0f172a; }}
   .brand .dot {{ color: #6366f1; }}
@@ -177,7 +178,7 @@ def render_paper_pdf(paper: PaperDetailResponse) -> bytes:
   .cover .accent {{ width: 64px; height: 4px; border-radius: 4px; margin: 12px auto 1.2cm;
                     background: linear-gradient(90deg, #6366f1, #8b5cf6); }}
 
-  .cover .meta {{ display: flex; justify-content: center; gap: 10px; max-width: 13cm; margin: 0 auto; }}
+  .cover .meta {{ display: flex; justify-content: center; gap: 10px; width: 13cm; }}
   .cover .meta .card {{ flex: 1; border: 1px solid #e2e8f0; background: #f8fafc; border-radius: 8px;
                         padding: 10px 8px; }}
   .cover .meta .card span {{ display: block; font-size: 9px; font-weight: bold; letter-spacing: 0.5px;
@@ -186,12 +187,12 @@ def render_paper_pdf(paper: PaperDetailResponse) -> bytes:
   .cover .date {{ margin-top: 12px; font-size: 12px; color: #64748b; }}
   .cover .date strong {{ color: #0f172a; }}
 
-  .candidate {{ display: flex; gap: 24px; max-width: 13cm; margin: 1.3cm auto 0; text-align: left; }}
+  .candidate {{ display: flex; gap: 24px; width: 13cm; margin-top: 1.3cm; text-align: left; }}
   .candidate .field {{ flex: 1; }}
   .candidate .field span {{ font-size: 11px; color: #64748b; }}
   .candidate .line {{ border-bottom: 1px solid #94a3b8; height: 24px; }}
 
-  .instructions {{ max-width: 13cm; margin: 1.2cm auto 0; text-align: left; border: 1px solid #e0e7ff;
+  .instructions {{ width: 13cm; margin-top: 1.2cm; text-align: left; border: 1px solid #e0e7ff;
                    background: #eef2ff; border-radius: 8px; padding: 12px 16px; }}
   .instructions h3 {{ margin: 0 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #4f46e5; }}
   .instructions p {{ margin: 0; font-size: 13px; line-height: 1.55; color: #334155; }}
