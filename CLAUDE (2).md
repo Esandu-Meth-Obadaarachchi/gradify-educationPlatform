@@ -1,8 +1,10 @@
-# CLAUDE.md — Gradify
+# CLAUDE.md — LEI (London Educational Institute)
 
 ## Project Overview
 
-Gradify is an end-to-end educational platform for creating, delivering, and marking mock exam papers.
+LEI (London Educational Institute) is an end-to-end educational platform for creating, delivering, and marking mock exam papers.
+
+> Naming note: the product is **London Educational Institute**, **LEI** for short. Some infrastructure identifiers keep the original `gradify` name to avoid breaking existing data — the Postgres database (`gradify`), the GCS bucket (`gradify-32225c-uploads`) and upload folder, and the browser auth storage key (`gradify-auth`).
 
 Two user sides:
 - Admin (you): manage question bank, build papers, send to students, mark submissions
@@ -124,7 +126,7 @@ exam_sessions   (id, paper_id, student_name, student_email, access_token UUID, s
 ## Folder Structure
 
 ```
-gradify/
+lei/
   backend/
     app/
       main.py
@@ -287,7 +289,7 @@ Server builds an HTML string from paper data, then converts to PDF via WeasyPrin
 
 Cover page: exam title, subject, duration, total marks, date, candidate name box, instructions block.
 Question pages: question number (left-aligned), marks (right margin), question image (full width).
-Footer: page numbers, paper title, Gradify watermark (small).
+Footer: page numbers, paper title, London Educational Institute watermark (small).
 Paper size: A4. Margins: 2.5cm all sides.
 
 ---
