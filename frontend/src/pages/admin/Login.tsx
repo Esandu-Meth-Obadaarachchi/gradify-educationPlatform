@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { authApi } from '../../services/api'
 import { useAuthStore } from '../../store/authStore'
 import { getErrorMessage } from '../../lib/errors'
+import LeiLogo from '../../components/shared/LeiLogo'
 
 const inputClass =
   'w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100 outline-none transition focus:border-indigo-500'
@@ -33,10 +34,11 @@ export default function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
       <div className="w-full max-w-sm rounded-2xl border border-slate-800 bg-slate-900 p-8 shadow-xl">
-        <div className="mb-6 text-center">
-          <div className="text-2xl font-bold text-white">
-            Gradify<span className="text-indigo-500">.</span>
-          </div>
+        <div className="mb-6 flex flex-col items-center text-center">
+          <LeiLogo size={52} wordmark="compact" onDark />
+          <p className="mt-3 text-xs uppercase tracking-[0.12em] text-slate-400">
+            London Educational Institute
+          </p>
           <p className="mt-1 text-sm text-slate-400">Admin sign in</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">

@@ -378,7 +378,7 @@ function EditPaper({ paperId }: { paperId: number }) {
                     <input
                       value={form.institution}
                       onChange={(e) => setForm({ ...form, institution: e.target.value })}
-                      placeholder="e.g. Gradify Academy"
+                      placeholder="e.g. London Educational Institute"
                       className={inputClass}
                     />
                   </div>

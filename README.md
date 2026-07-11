@@ -1,4 +1,4 @@
-# Gradify
+# LEI — London Educational Institute
 
 End-to-end platform for creating, delivering, and marking mock exam papers.
 

@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
+import LeiLogo from './LeiLogo'
 
 const links = [
   { to: '/', label: 'Dashboard', end: true },
@@ -14,8 +15,8 @@ export default function Navbar() {
 
   return (
     <aside className="flex w-60 shrink-0 flex-col border-r border-slate-800 bg-slate-900">
-      <div className="px-6 py-5 text-xl font-bold tracking-tight text-white">
-        Gradify<span className="text-indigo-500">.</span>
+      <div className="px-5 py-5">
+        <LeiLogo size={38} onDark />
       </div>
 
       <nav className="flex-1 space-y-1 px-3">

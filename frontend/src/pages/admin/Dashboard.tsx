@@ -25,7 +25,7 @@ export default function Dashboard() {
   return (
     <div>
       <h1 className="mb-1 text-2xl font-bold text-white">Dashboard</h1>
-      <p className="mb-6 text-slate-400">Gradify admin overview</p>
+      <p className="mb-6 text-slate-400">London Educational Institute admin overview</p>
       {loading ? (
         <LoadingSpinner />
       ) : (
