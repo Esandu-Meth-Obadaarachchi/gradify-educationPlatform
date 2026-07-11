@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.routers import auth, papers, questions, subjects, topics
 
-app = FastAPI(title="Gradify API", version="0.1.0")
+app = FastAPI(title="LEI — London Educational Institute API", version="0.1.0")
 
 # CORS — allow the Vite dev server (and whatever FRONTEND_URL is configured).
 _origins = list(
@@ -31,4 +31,4 @@ app.include_router(papers.router)
 
 @app.get("/health", tags=["health"])
 async def health():
-    return {"status": "ok", "service": "gradify", "version": app.version}
+    return {"status": "ok", "service": "lei", "version": app.version}

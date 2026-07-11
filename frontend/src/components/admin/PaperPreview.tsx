@@ -1,5 +1,5 @@
 import type { CoverPageData, PaperQuestion } from '../../types'
-import GradifyLogo from '../shared/GradifyLogo'
+import LeiLogo from '../shared/LeiLogo'
 
 interface PaperPreviewProps {
   title: string
@@ -13,7 +13,7 @@ interface PaperPreviewProps {
 function MetaCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-center">
-      <div className="text-[10px] font-semibold uppercase tracking-wide text-indigo-500">{label}</div>
+      <div className="text-[10px] font-semibold uppercase tracking-wide text-blue-900">{label}</div>
       <div className="mt-0.5 text-sm font-semibold text-slate-900">{value}</div>
     </div>
   )
@@ -31,10 +31,10 @@ export default function PaperPreview({
     <div className="overflow-hidden rounded-lg bg-white text-slate-900 shadow-inner">
       {/* Cover — roughly A4 proportion so it reads like the exported front page */}
       <div className="relative flex min-h-[840px] flex-col">
-        <div className="h-2 w-full bg-gradient-to-r from-indigo-500 to-violet-500" />
+        <div className="h-2 w-full bg-gradient-to-r from-blue-900 to-blue-600" />
         <div className="mx-auto flex max-w-[640px] flex-1 flex-col justify-center px-8 py-10 text-center">
           <div className="mb-6 flex justify-center">
-            <GradifyLogo size={44} />
+            <LeiLogo size={46} />
           </div>
 
           {cover?.institution && (
@@ -46,7 +46,7 @@ export default function PaperPreview({
           <h2 className="text-3xl font-bold tracking-tight text-slate-900">
             {title || 'Untitled paper'}
           </h2>
-          <div className="mx-auto mt-3 h-1 w-16 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500" />
+          <div className="mx-auto mt-3 h-1 w-16 rounded-full bg-gradient-to-r from-blue-900 to-blue-600" />
 
           <div className="mx-auto mt-7 grid max-w-md grid-cols-3 gap-3">
             <MetaCard label="Subject" value={subjectName || '—'} />
@@ -71,8 +71,8 @@ export default function PaperPreview({
           </div>
 
           {cover?.instructions && (
-            <div className="mx-auto mt-7 max-w-md rounded-lg border border-indigo-100 bg-indigo-50/60 p-4 text-left">
-              <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-indigo-600">
+            <div className="mx-auto mt-7 max-w-md rounded-lg border border-blue-100 bg-blue-50/60 p-4 text-left">
+              <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-blue-900">
                 Instructions
               </div>
               <p className="whitespace-pre-line text-sm leading-relaxed text-slate-700">
@@ -93,7 +93,7 @@ export default function PaperPreview({
             {questions.map((q) => (
               <div key={q.id}>
                 <div className="mb-3 flex items-center justify-between gap-3">
-                  <span className="inline-flex items-center gap-2 rounded-full bg-indigo-500 px-3 py-1 text-sm font-semibold text-white">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-blue-900 px-3 py-1 text-sm font-semibold text-white">
                     Q{q.question_number}
                   </span>
                   <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">

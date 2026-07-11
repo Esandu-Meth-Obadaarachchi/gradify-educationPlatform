@@ -60,25 +60,6 @@ def _data_uri(image_url: str) -> str | None:
         return None
 
 
-# Brand mark — kept in sync with frontend/src/components/shared/GradifyLogo.tsx.
-_LOGO_SVG = """
-<svg width="46" height="46" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="gmark" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#6366f1"/>
-      <stop offset="1" stop-color="#8b5cf6"/>
-    </linearGradient>
-  </defs>
-  <rect width="48" height="48" rx="12" fill="url(#gmark)"/>
-  <path d="M24 13 L40 20 L24 27 L8 20 Z" fill="#ffffff"/>
-  <path d="M15 22.5 V29.5 C15 32.6 33 32.6 33 29.5 V22.5" stroke="#ffffff"
-        stroke-width="2.4" fill="none" stroke-linecap="round"/>
-  <path d="M40 20 V30" stroke="#c7d2fe" stroke-width="1.6" stroke-linecap="round"/>
-  <circle cx="40" cy="31.5" r="2" fill="#c7d2fe"/>
-</svg>
-"""
-
-
 def _cover_html(paper: PaperDetailResponse) -> str:
     cover = paper.cover_page_data or {}
     institution = escape(str(cover.get("institution") or ""))
@@ -101,8 +82,11 @@ def _cover_html(paper: PaperDetailResponse) -> str:
     return f"""
     <section class="cover">
       <div class="brand">
-        {_LOGO_SVG}
-        <span class="wordmark">Gradify<span class="dot">.</span></span>
+        <div class="logo-tile">Lei</div>
+        <div class="brand-text">
+          <span class="wordmark">LEI</span>
+          <span class="brand-sub">London Educational Institute</span>
+        </div>
       </div>
       {institution_row}
       <h1 class="paper-title">{title}</h1>
@@ -163,26 +147,30 @@ def render_paper_pdf(paper: PaperDetailResponse) -> bytes:
     margin: 2.5cm;
     @bottom-left {{ content: "{title}"; font-size: 8px; color: #b0b0b0; }}
     @bottom-center {{ content: "Page " counter(page) " of " counter(pages); font-size: 9px; color: #888; }}
-    @bottom-right {{ content: "Gradify"; font-size: 8px; color: #c8c8c8; }}
+    @bottom-right {{ content: "London Educational Institute"; font-size: 8px; color: #c8c8c8; }}
   }}
   * {{ box-sizing: border-box; }}
   body {{ font-family: Helvetica, Arial, sans-serif; color: #0f172a; margin: 0; }}
 
   .cover {{ page-break-after: always; text-align: center; min-height: 23cm;
             display: flex; flex-direction: column; justify-content: center; align-items: center; }}
-  .brand {{ display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 0.9cm; }}
-  .brand .wordmark {{ font-size: 24px; font-weight: bold; letter-spacing: -0.5px; color: #0f172a; }}
-  .brand .dot {{ color: #6366f1; }}
+  .brand {{ display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 0.9cm; }}
+  .brand .logo-tile {{ width: 50px; height: 50px; border-radius: 12px; background: #1e3a8a; color: #fff;
+                       font-size: 23px; font-weight: bold; display: flex; align-items: center;
+                       justify-content: center; }}
+  .brand .brand-text {{ display: flex; flex-direction: column; align-items: flex-start; line-height: 1.05; }}
+  .brand .wordmark {{ font-size: 24px; font-weight: bold; letter-spacing: 0.5px; color: #0f172a; }}
+  .brand .brand-sub {{ font-size: 8px; font-weight: bold; letter-spacing: 1.3px; text-transform: uppercase; color: #64748b; }}
   .cover .institution {{ font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: #64748b; margin-bottom: 10px; }}
   .cover .paper-title {{ font-size: 30px; margin: 0; color: #0f172a; letter-spacing: -0.5px; }}
   .cover .accent {{ width: 64px; height: 4px; border-radius: 4px; margin: 12px auto 1.2cm;
-                    background: linear-gradient(90deg, #6366f1, #8b5cf6); }}
+                    background: linear-gradient(90deg, #1e3a8a, #2563eb); }}
 
   .cover .meta {{ display: flex; justify-content: center; gap: 10px; width: 13cm; }}
   .cover .meta .card {{ flex: 1; border: 1px solid #e2e8f0; background: #f8fafc; border-radius: 8px;
                         padding: 10px 8px; }}
   .cover .meta .card span {{ display: block; font-size: 9px; font-weight: bold; letter-spacing: 0.5px;
-                             text-transform: uppercase; color: #6366f1; }}
+                             text-transform: uppercase; color: #1e3a8a; }}
   .cover .meta .card strong {{ display: block; margin-top: 3px; font-size: 14px; color: #0f172a; }}
   .cover .date {{ margin-top: 12px; font-size: 12px; color: #64748b; }}
   .cover .date strong {{ color: #0f172a; }}
@@ -192,14 +180,14 @@ def render_paper_pdf(paper: PaperDetailResponse) -> bytes:
   .candidate .field span {{ font-size: 11px; color: #64748b; }}
   .candidate .line {{ border-bottom: 1px solid #94a3b8; height: 24px; }}
 
-  .instructions {{ width: 13cm; margin-top: 1.2cm; text-align: left; border: 1px solid #e0e7ff;
-                   background: #eef2ff; border-radius: 8px; padding: 12px 16px; }}
-  .instructions h3 {{ margin: 0 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #4f46e5; }}
+  .instructions {{ width: 13cm; margin-top: 1.2cm; text-align: left; border: 1px solid #dbeafe;
+                   background: #eff6ff; border-radius: 8px; padding: 12px 16px; }}
+  .instructions h3 {{ margin: 0 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #1e3a8a; }}
   .instructions p {{ margin: 0; font-size: 13px; line-height: 1.55; color: #334155; }}
 
   .question {{ break-inside: avoid; margin-bottom: 26px; }}
   .qhead {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }}
-  .qnum {{ font-size: 13px; font-weight: bold; color: #fff; background: #6366f1;
+  .qnum {{ font-size: 13px; font-weight: bold; color: #fff; background: #1e3a8a;
            border-radius: 999px; padding: 4px 12px; }}
   .qmarks {{ font-size: 11px; color: #475569; background: #f8fafc; border: 1px solid #e2e8f0;
              border-radius: 999px; padding: 4px 12px; }}
